@@ -19,6 +19,7 @@
 <div class="hidden md:flex gap-6">
 <a href="#about" class="hover:text-claw-purple font-semibold">About</a>
 <a href="#demo" class="hover:text-claw-purple font-semibold">Demo</a>
+<a href="#pro-features" class="hover:text-claw-purple font-semibold">Pro</a>
 <a href="#pricing" class="hover:text-claw-purple font-semibold">Pricing</a>
 <a href="#faq" class="hover:text-claw-purple font-semibold">FAQ</a>
 <a href="#support" class="hover:text-claw-purple font-semibold">Support</a>
@@ -75,8 +76,60 @@
 <button id="runBtn" onclick="runDemo()" disabled class="w-full max-w-md mx-auto block px-16 py-6 bg-gray-400 text-white rounded-3xl font-bold text-xl shadow-2xl cursor-not-allowed">🔬 Generate Report</button>
 <div id="demoOutput" class="mt-12 p-10 bg-gray-50 rounded-3xl border min-h-[700px] overflow-auto prose-lg">Pick drug for Pro chain...</div>
 </div>
+    <!-- Pro upsell note -->
+    <div class="mt-12 max-w-3xl mx-auto text-center bg-gradient-to-r from-claw-purple/10 to-indigo-100 border-2 border-claw-purple/30 rounded-3xl p-8">
+      <p class="text-lg font-semibold text-gray-800 mb-2">🔒 Pro users get: <span class="text-claw-purple font-bold">Compound Comparison Mode</span> + <span class="text-claw-purple font-bold">PDF Export</span></p>
+      <p class="text-gray-600 mb-4">Compare multiple candidates side-by-side and export team-ready PDF reports.</p>
+      <a href="#pricing" class="inline-block bg-gradient-to-r from-claw-purple to-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:shadow-xl transition-all">See Pro Plans →</a>
+    </div>
 </div>
 </section>
+
+<!-- Pro Features -->
+<section id="pro-features" class="py-32 px-4 bg-white">
+<div class="max-w-5xl mx-auto text-center mb-16">
+  <h2 class="text-5xl font-black bg-gradient-to-r from-claw-purple to-indigo-600 bg-clip-text text-transparent mb-6">Pro Features</h2>
+  <p class="text-xl text-gray-600 max-w-3xl mx-auto">Unlock powerful workflows built for discovery teams.</p>
+</div>
+<div class="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto mb-16">
+  <div class="relative p-10 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50 shadow-2xl border-2 border-indigo-200 hover:shadow-3xl transition-all">
+    <span class="absolute -top-4 right-6 bg-gradient-to-r from-claw-purple to-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide">PRO</span>
+    <div class="text-5xl mb-6">⚖️</div>
+    <h3 class="text-2xl font-bold mb-4">Compound Comparison</h3>
+    <p class="text-gray-600 leading-relaxed">Side-by-side analysis of multiple candidates. Compare molecular properties, ADMET profiles, safety signals, and IP landscape in one view. Pick winners faster.</p>
+  </div>
+  <div class="relative p-10 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50 shadow-2xl border-2 border-indigo-200 hover:shadow-3xl transition-all">
+    <span class="absolute -top-4 right-6 bg-gradient-to-r from-claw-purple to-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide">PRO</span>
+    <div class="text-5xl mb-6">📄</div>
+    <h3 class="text-2xl font-bold mb-4">PDF Reports</h3>
+    <p class="text-gray-600 leading-relaxed">Export-ready reports for team meetings, regulatory filings, and stakeholder updates. One click from analysis to polished PDF with charts, tables, and recommendations.</p>
+  </div>
+</div>
+<div class="max-w-5xl mx-auto">
+  <h3 class="text-2xl font-bold text-center mb-8 text-gray-700">Example: Compound Comparison Output</h3>
+  <div class="overflow-x-auto bg-white rounded-3xl shadow-2xl border p-8">
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b-2 border-claw-purple/30">
+          <th class="py-4 px-4 text-claw-purple font-bold">Property</th>
+          <th class="py-4 px-4 text-center"><span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-bold">Compound A</span></th>
+          <th class="py-4 px-4 text-center"><span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-bold">Compound B</span></th>
+          <th class="py-4 px-4 text-center"><span class="bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-sm font-bold">Compound C</span></th>
+        </tr>
+      </thead>
+      <tbody class="text-gray-700">
+        <tr class="border-b hover:bg-indigo-50/50"><td class="py-3 px-4 font-semibold">MW</td><td class="py-3 px-4 text-center">315.7</td><td class="py-3 px-4 text-center">206.3</td><td class="py-3 px-4 text-center">560.6</td></tr>
+        <tr class="border-b hover:bg-indigo-50/50"><td class="py-3 px-4 font-semibold">LogP</td><td class="py-3 px-4 text-center">4.0</td><td class="py-3 px-4 text-center">3.97</td><td class="py-3 px-4 text-center">4.0</td></tr>
+        <tr class="border-b hover:bg-indigo-50/50"><td class="py-3 px-4 font-semibold">TPSA</td><td class="py-3 px-4 text-center">38.3</td><td class="py-3 px-4 text-center">37.3</td><td class="py-3 px-4 text-center">102.0</td></tr>
+        <tr class="border-b hover:bg-indigo-50/50"><td class="py-3 px-4 font-semibold">HBD / HBA</td><td class="py-3 px-4 text-center">1 / 5</td><td class="py-3 px-4 text-center">1 / 3</td><td class="py-3 px-4 text-center">1 / 7</td></tr>
+        <tr class="border-b hover:bg-indigo-50/50"><td class="py-3 px-4 font-semibold">Lipinski</td><td class="py-3 px-4 text-center"><span class="text-green-600 font-bold">✅ Pass</span></td><td class="py-3 px-4 text-center"><span class="text-green-600 font-bold">✅ Pass</span></td><td class="py-3 px-4 text-center"><span class="text-amber-600 font-bold">⚠️ 1 violation</span></td></tr>
+        <tr class="hover:bg-indigo-50/50"><td class="py-3 px-4 font-semibold">FAERS Signals</td><td class="py-3 px-4 text-center"><span class="text-amber-600">Psychiatric 22%</span></td><td class="py-3 px-4 text-center"><span class="text-amber-600">GI bleed 28%</span></td><td class="py-3 px-4 text-center"><span class="text-red-600">Hepatotox 20%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
 <!-- Pricing New -->
 <section id="pricing" class="py-32 px-4 bg-white">
 <div class="max-w-5xl mx-auto text-center mb-20">
@@ -100,7 +153,8 @@
 <p class="text-4xl font-black mb-8">$29/mo</p>
 <ul class="space-y-4 mb-10 text-left">
 <li class="flex items-center gap-3">✅ All skills + API</li>
-<li class="flex items-center gap-3">✅ PNG/JSON exports</li>
+<li class="flex items-center gap-3">✅ PNG/JSON/PDF exports</li>
+<li class="flex items-center gap-3">✅ Compound Comparison</li>
 <li class="flex items-center gap-3">✅ Priority chains</li>
 <li class="flex items-center gap-3">✅ Unlimited queries</li>
 </ul>
