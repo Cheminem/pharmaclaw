@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaClaw 🧪 — Try It</title>
+<meta name="description" content="Try PharmaClaw's AI agents: Chemistry Query, Pharmacology, and Catalyst Design. No installation required.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = {theme: {extend: {colors: {'claw-purple': '#667eea'}}}}</script>
+<style>
+  .fade-in { animation: fadeIn 0.4s ease-in; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .result-card { transition: all 0.3s ease; }
+  .result-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+  .spinner { border: 3px solid #e5e7eb; border-top: 3px solid #667eea; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  pre { white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50 min-h-screen">
+
+<!-- Nav -->
+<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-lg border-b">
+<div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+  <a href="index.html" class="text-2xl font-black bg-gradient-to-r from-claw-purple to-indigo-600 bg-clip-text text-transparent">PharmaClaw</a>
+  <div class="flex gap-4 items-center">
+    <a href="index.html" class="text-sm font-semibold text-gray-600 hover:text-claw-purple">← Back to Home</a>
+    <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">FREE</span>
+  </div>
+</div>
+</nav>
+
+<!-- Main -->
+<main class="max-w-5xl mx-auto px-4 py-12">
+
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-gray-900 via-claw-purple to-indigo-900 bg-clip-text text-transparent mb-4">Try PharmaClaw</h1>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">Enter a drug name, SMILES string, or reaction type. No installation, no account, no API key.</p>
+  </div>
+
+  <!-- Agent Selector -->
+  <div class="flex flex-wrap justify-center gap-4 mb-8">
+    <button onclick="selectAgent('chemistry')" id="btn-chemistry" class="agent-btn px-6 py-4 rounded-2xl font-bold text-lg shadow-lg border-2 transition-all bg-blue-50 border-blue-200 hover:bg-blue-100">
+      🧪 Chemistry
+    </button>
+    <button onclick="selectAgent('pharmacology')" id="btn-pharmacology" class="agent-btn px-6 py-4 rounded-2xl font-bold text-lg shadow-lg border-2 transition-all bg-purple-50 border-purple-200 hover:bg-purple-100">
+      💊 Pharmacology
+    </button>
+    <button onclick="selectAgent('catalyst')" id="btn-catalyst" class="agent-btn px-6 py-4 rounded-2xl font-bold text-lg shadow-lg border-2 transition-all bg-orange-50 border-orange-200 hover:bg-orange-100">
+      🔧 Catalyst Design
+    </button>
+  </div>
+
+  <!-- Input Forms (toggled by agent selection) -->
+  <div id="form-container" class="max-w-2xl mx-auto">
+
+    <!-- Chemistry Form -->
+    <div id="form-chemistry" class="agent-form hidden bg-white rounded-3xl shadow-xl border p-8 fade-in">
+      <h2 class="text-2xl font-bold mb-2">🧪 Chemistry Query</h2>
+      <p class="text-gray-500 mb-6">Look up any compound — get properties, structure, and retrosynthesis routes.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Drug Name or SMILES</label>
+          <input id="chem-input" type="text" placeholder="e.g., aspirin, ibuprofen, CC(=O)Oc1ccccc1C(=O)O" 
+            class="w-full px-4 py-3 border-2 rounded-xl focus:border-claw-purple focus:outline-none text-lg" />
+        </div>
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 text-sm text-gray-600">
+            <input id="chem-retro" type="checkbox" checked class="rounded"> Include retrosynthesis
+          </label>
+        </div>
+        <button onclick="runChemistry()" id="run-chemistry" class="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold text-lg hover:shadow-xl transition-all">
+          🔬 Analyze Compound
+        </button>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="text-xs text-gray-400">Try:</span>
+        <button onclick="document.getElementById('chem-input').value='aspirin'; runChemistry()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">aspirin</button>
+        <button onclick="document.getElementById('chem-input').value='sotorasib'; runChemistry()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">sotorasib</button>
+        <button onclick="document.getElementById('chem-input').value='caffeine'; runChemistry()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">caffeine</button>
+        <button onclick="document.getElementById('chem-input').value='ibuprofen'; runChemistry()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">ibuprofen</button>
+      </div>
+    </div>
+
+    <!-- Pharmacology Form -->
+    <div id="form-pharmacology" class="agent-form hidden bg-white rounded-3xl shadow-xl border p-8 fade-in">
+      <h2 class="text-2xl font-bold mb-2">💊 Pharmacology Profiling</h2>
+      <p class="text-gray-500 mb-6">Get ADME/PK profile — Lipinski rules, solubility, BBB, CYP inhibition, and more.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Drug Name or SMILES</label>
+          <input id="pharma-input" type="text" placeholder="e.g., metformin, CC(=O)Oc1ccccc1C(=O)O"
+            class="w-full px-4 py-3 border-2 rounded-xl focus:border-claw-purple focus:outline-none text-lg" />
+        </div>
+        <button onclick="runPharmacology()" id="run-pharmacology" class="w-full py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-xl transition-all">
+          💊 Profile Drug
+        </button>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="text-xs text-gray-400">Try:</span>
+        <button onclick="document.getElementById('pharma-input').value='metformin'; runPharmacology()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">metformin</button>
+        <button onclick="document.getElementById('pharma-input').value='efavirenz'; runPharmacology()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">efavirenz</button>
+        <button onclick="document.getElementById('pharma-input').value='aspirin'; runPharmacology()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">aspirin</button>
+      </div>
+    </div>
+
+    <!-- Catalyst Form -->
+    <div id="form-catalyst" class="agent-form hidden bg-white rounded-3xl shadow-xl border p-8 fade-in">
+      <h2 class="text-2xl font-bold mb-2">🔧 Catalyst Design</h2>
+      <p class="text-gray-500 mb-6">Find the right catalyst for your reaction, or design novel ligand modifications.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Reaction Type</label>
+          <select id="catalyst-reaction" class="w-full px-4 py-3 border-2 rounded-xl focus:border-claw-purple focus:outline-none text-lg bg-white">
+            <option value="">— Select a reaction —</option>
+            <option value="suzuki">Suzuki-Miyaura Coupling</option>
+            <option value="heck">Heck Reaction</option>
+            <option value="buchwald_hartwig">Buchwald-Hartwig Amination</option>
+            <option value="c_n_coupling">C-N Coupling (general)</option>
+            <option value="sonogashira">Sonogashira Coupling</option>
+            <option value="negishi">Negishi Coupling</option>
+            <option value="olefin_metathesis">Olefin Metathesis</option>
+            <option value="ring_closing_metathesis">Ring-Closing Metathesis</option>
+            <option value="asymmetric_hydrogenation">Asymmetric Hydrogenation</option>
+            <option value="hydrogenation">Hydrogenation (general)</option>
+            <option value="click">Click Chemistry (CuAAC)</option>
+            <option value="kumada">Kumada Coupling</option>
+            <option value="stille">Stille Coupling</option>
+            <option value="carbonylation">Carbonylation</option>
+            <option value="c_h_activation">C-H Activation</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Ligand Scaffold (optional — for novel ligand design)</label>
+          <select id="catalyst-scaffold" class="w-full px-4 py-3 border-2 rounded-xl focus:border-claw-purple focus:outline-none text-lg bg-white">
+            <option value="">— None (recommendation only) —</option>
+            <option value="PPh3">PPh₃ (Triphenylphosphine)</option>
+            <option value="PCy3">PCy₃ (Tricyclohexylphosphine)</option>
+            <option value="NHC_IMes">NHC-IMes (N-Heterocyclic Carbene)</option>
+            <option value="NHC_IPr">NHC-IPr (Bulky NHC)</option>
+            <option value="dppe">dppe (Bidentate phosphine)</option>
+            <option value="dppp">dppp (Bidentate phosphine)</option>
+          </select>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <label class="flex items-center gap-2 text-sm text-gray-600">
+            <input id="catalyst-enantio" type="checkbox" class="rounded"> Enantioselective
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-600">
+            <input id="catalyst-earth" type="checkbox" class="rounded"> Prefer earth-abundant metals
+          </label>
+        </div>
+        <button onclick="runCatalyst()" id="run-catalyst" class="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold text-lg hover:shadow-xl transition-all">
+          🔧 Find Catalysts
+        </button>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="text-xs text-gray-400">Try:</span>
+        <button onclick="document.getElementById('catalyst-reaction').value='suzuki'; runCatalyst()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">Suzuki coupling</button>
+        <button onclick="document.getElementById('catalyst-reaction').value='olefin_metathesis'; runCatalyst()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">Metathesis</button>
+        <button onclick="document.getElementById('catalyst-reaction').value='asymmetric_hydrogenation'; document.getElementById('catalyst-enantio').checked=true; runCatalyst()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition">Asymmetric hydrogenation</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Results -->
+  <div id="results-container" class="max-w-4xl mx-auto mt-10 hidden">
+    <div id="results-loading" class="text-center py-12 hidden">
+      <div class="spinner mx-auto mb-4"></div>
+      <p class="text-gray-500 font-semibold" id="loading-text">Running agent...</p>
+    </div>
+    <div id="results-content" class="space-y-6"></div>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="text-center py-8 text-gray-400 text-sm">
+  <p>PharmaClaw — The accessible entry point to computational chemistry.</p>
+  <p class="mt-1">Powered by <a href="https://openclaw.ai" class="text-claw-purple hover:underline">OpenClaw</a> · <a href="index.html" class="text-claw-purple hover:underline">Home</a></p>
+</footer>
+
+<script>
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : 'https://api.pharmaclaw.com';  // Update when backend is deployed
+
+let currentAgent = null;
+
+function selectAgent(agent) {
+  currentAgent = agent;
+  document.querySelectorAll('.agent-form').forEach(f => f.classList.add('hidden'));
+  document.querySelectorAll('.agent-btn').forEach(b => {
+    b.classList.remove('ring-4', 'ring-claw-purple', 'bg-gradient-to-r', 'from-claw-purple', 'to-indigo-600', 'text-white', 'border-claw-purple');
+  });
+  document.getElementById(`form-${agent}`).classList.remove('hidden');
+  const btn = document.getElementById(`btn-${agent}`);
+  btn.classList.add('ring-4', 'ring-claw-purple', 'border-claw-purple');
+  // Clear previous results
+  document.getElementById('results-container').classList.add('hidden');
+}
+
+function showLoading(text) {
+  const container = document.getElementById('results-container');
+  container.classList.remove('hidden');
+  document.getElementById('results-loading').classList.remove('hidden');
+  document.getElementById('results-content').innerHTML = '';
+  document.getElementById('loading-text').textContent = text;
+}
+
+function hideLoading() {
+  document.getElementById('results-loading').classList.add('hidden');
+}
+
+function showError(msg) {
+  hideLoading();
+  document.getElementById('results-content').innerHTML = `
+    <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6 fade-in">
+      <h3 class="text-lg font-bold text-red-700 mb-2">❌ Error</h3>
+      <p class="text-red-600">${escapeHtml(msg)}</p>
+      <p class="text-sm text-gray-500 mt-3">If the API is not yet deployed, try the demo buttons on the <a href="index.html#demo" class="text-claw-purple underline">home page</a>.</p>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// --- Chemistry ---
+async function runChemistry() {
+  const compound = document.getElementById('chem-input').value.trim();
+  if (!compound) return alert('Please enter a drug name or SMILES string.');
+  const includeRetro = document.getElementById('chem-retro').checked;
+  
+  showLoading(`🧪 Analyzing "${compound}"... querying PubChem + RDKit`);
+  try {
+    const resp = await fetch(`${API_URL}/api/chemistry`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ compound, include_retro: includeRetro })
+    });
+    const data = await resp.json();
+    hideLoading();
+    renderChemistry(data, compound);
+  } catch(e) {
+    showError(`Could not connect to PharmaClaw API. ${e.message}`);
+  }
+}
+
+function renderChemistry(data, query) {
+  let html = `<div class="fade-in space-y-6">`;
+  html += `<h2 class="text-2xl font-bold">🧪 Chemistry Report: ${escapeHtml(query)}</h2>`;
+  
+  // SMILES
+  if (data.smiles) {
+    html += `<div class="bg-gray-50 rounded-xl p-4 font-mono text-sm break-all"><strong>SMILES:</strong> ${escapeHtml(data.smiles)}</div>`;
+  }
+
+  // PubChem info
+  if (data.pubchem && data.pubchem.status !== 'error') {
+    const p = data.pubchem;
+    html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+      <h3 class="text-lg font-bold text-blue-700 mb-4">📋 PubChem Data</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        ${p.MolecularFormula ? `<div><span class="text-gray-500">Formula</span><br><strong>${p.MolecularFormula}</strong></div>` : ''}
+        ${p.MolecularWeight ? `<div><span class="text-gray-500">MW</span><br><strong>${p.MolecularWeight}</strong></div>` : ''}
+        ${p.IUPACName ? `<div class="col-span-2"><span class="text-gray-500">IUPAC Name</span><br><strong>${escapeHtml(p.IUPACName)}</strong></div>` : ''}
+        ${p.InChIKey ? `<div class="col-span-2"><span class="text-gray-500">InChIKey</span><br><strong class="font-mono text-xs">${p.InChIKey}</strong></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // RDKit properties
+  if (data.properties && data.properties.status !== 'error') {
+    const pr = data.properties;
+    html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+      <h3 class="text-lg font-bold text-blue-700 mb-4">⚗️ Molecular Properties (RDKit)</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        ${renderProp('MW', pr.MW || pr.mw)}
+        ${renderProp('LogP', pr.logP || pr.LogP)}
+        ${renderProp('TPSA', pr.TPSA || pr.tpsa)}
+        ${renderProp('HBD', pr.HBD || pr.hbd)}
+        ${renderProp('HBA', pr.HBA || pr.hba)}
+        ${renderProp('Rotatable Bonds', pr.rotatable_bonds || pr.RotB)}
+        ${renderProp('Aromatic Rings', pr.aromatic_rings || pr.AromaticRings)}
+      </div>
+    </div>`;
+  }
+
+  // Retrosynthesis
+  if (data.retrosynthesis && data.retrosynthesis.status !== 'error') {
+    const r = data.retrosynthesis;
+    html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+      <h3 class="text-lg font-bold text-teal-700 mb-4">🔬 Retrosynthesis (BRICS)</h3>
+      <pre class="bg-gray-50 rounded-xl p-4 text-xs overflow-auto max-h-96">${escapeHtml(JSON.stringify(r, null, 2))}</pre>
+    </div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById('results-content').innerHTML = html;
+}
+
+function renderProp(label, value) {
+  if (value === undefined || value === null) return '';
+  const v = typeof value === 'number' ? (Number.isInteger(value) ? value : value.toFixed(2)) : value;
+  return `<div><span class="text-gray-500">${label}</span><br><strong>${v}</strong></div>`;
+}
+
+// --- Pharmacology ---
+async function runPharmacology() {
+  const compound = document.getElementById('pharma-input').value.trim();
+  if (!compound) return alert('Please enter a drug name or SMILES string.');
+  
+  showLoading(`💊 Profiling "${compound}"... computing ADME/PK`);
+  try {
+    const resp = await fetch(`${API_URL}/api/pharmacology`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ compound })
+    });
+    const data = await resp.json();
+    hideLoading();
+    renderPharmacology(data, compound);
+  } catch(e) {
+    showError(`Could not connect to PharmaClaw API. ${e.message}`);
+  }
+}
+
+function renderPharmacology(data, query) {
+  let html = `<div class="fade-in space-y-6">`;
+  html += `<h2 class="text-2xl font-bold">💊 Pharmacology Report: ${escapeHtml(query)}</h2>`;
+  
+  const report = data.report || data;
+  
+  // Drug-likeness
+  if (report.drug_likeness || report.props) {
+    const dl = report.drug_likeness || report.props || {};
+    html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+      <h3 class="text-lg font-bold text-purple-700 mb-4">💊 Drug-Likeness</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        ${renderProp('MW', dl.MW || dl.mw)}
+        ${renderProp('LogP', dl.logP || dl.LogP)}
+        ${renderProp('TPSA', dl.TPSA || dl.tpsa)}
+        ${renderProp('HBD', dl.HBD || dl.hbd)}
+        ${renderProp('HBA', dl.HBA || dl.hba)}
+        ${renderProp('QED', dl.QED || dl.qed)}
+        ${renderProp('Lipinski Violations', dl.lipinski_violations)}
+      </div>
+    </div>`;
+  }
+
+  // Full JSON for now
+  html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+    <h3 class="text-lg font-bold text-purple-700 mb-4">📊 Full Profile</h3>
+    <pre class="bg-gray-50 rounded-xl p-4 text-xs overflow-auto max-h-96">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+  </div>`;
+
+  html += `</div>`;
+  document.getElementById('results-content').innerHTML = html;
+}
+
+// --- Catalyst ---
+async function runCatalyst() {
+  const reaction = document.getElementById('catalyst-reaction').value;
+  const scaffold = document.getElementById('catalyst-scaffold').value;
+  const enantio = document.getElementById('catalyst-enantio').checked;
+  const earth = document.getElementById('catalyst-earth').checked;
+  
+  if (!reaction && !scaffold) return alert('Please select a reaction type or ligand scaffold.');
+  
+  const label = reaction || scaffold;
+  showLoading(`🔧 Finding catalysts for "${label}"...`);
+  try {
+    const resp = await fetch(`${API_URL}/api/catalyst`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ reaction: reaction || undefined, scaffold: scaffold || undefined, enantioselective: enantio, prefer_earth_abundant: earth })
+    });
+    const data = await resp.json();
+    hideLoading();
+    renderCatalyst(data);
+  } catch(e) {
+    showError(`Could not connect to PharmaClaw API. ${e.message}`);
+  }
+}
+
+function renderCatalyst(data) {
+  let html = `<div class="fade-in space-y-6">`;
+  html += `<h2 class="text-2xl font-bold">🔧 Catalyst Design Report</h2>`;
+  
+  const report = data.report || data;
+  
+  // Recommendations
+  const rec = report.recommendation || report;
+  if (rec && rec.results && rec.results.length > 0) {
+    html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+      <h3 class="text-lg font-bold text-orange-700 mb-4">🏆 Recommended Catalysts (${rec.results.length} matches)</h3>
+      <div class="space-y-4">`;
+    
+    rec.results.forEach((cat, i) => {
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+      const costColors = {very_low:'bg-green-100 text-green-700', low:'bg-green-50 text-green-600', medium:'bg-yellow-50 text-yellow-700', high:'bg-orange-50 text-orange-700', very_high:'bg-red-50 text-red-700'};
+      const costClass = costColors[cat.cost] || 'bg-gray-100 text-gray-600';
+      
+      html += `<div class="border rounded-xl p-4 hover:shadow-md transition-all ${i === 0 ? 'border-orange-300 bg-orange-50/50' : ''}">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <span class="text-xl mr-2">${medal}</span>
+            <strong class="text-lg">${escapeHtml(cat.abbreviation)}</strong>
+            <span class="text-gray-500 text-sm ml-2">Score: ${cat.score}</span>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full font-bold ${costClass}">${cat.cost} cost</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-2">${escapeHtml(cat.name)}</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div><span class="text-gray-400">Metal</span><br><strong>${cat.metal}</strong></div>
+          <div><span class="text-gray-400">Ligand</span><br><strong>${escapeHtml(cat.ligand)}</strong></div>
+          <div><span class="text-gray-400">Loading</span><br><strong>${cat.loading_mol_pct[0]}-${cat.loading_mol_pct[1]} mol%</strong></div>
+          <div><span class="text-gray-400">Temp</span><br><strong>${cat.conditions.temp_C[0]}-${cat.conditions.temp_C[1]}°C</strong></div>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-1">
+          ${cat.advantages.map(a => `<span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">✓ ${escapeHtml(a)}</span>`).join('')}
+          ${cat.limitations.map(l => `<span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full">⚠ ${escapeHtml(l)}</span>`).join('')}
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Ligand optimization
+  const lig = report.ligand_optimization || report.ligand_design;
+  if (lig && lig.variants && lig.variants.length > 0) {
+    html += `<div class="result-card bg-white rounded-2xl shadow-lg border p-6">
+      <h3 class="text-lg font-bold text-orange-700 mb-4">🧬 Novel Ligand Variants (${lig.variants.length} designed)</h3>`;
+    
+    // Group by strategy
+    const groups = {};
+    lig.variants.forEach(v => {
+      const s = v.strategy || 'other';
+      if (!groups[s]) groups[s] = [];
+      groups[s].push(v);
+    });
+
+    const strategyLabels = {steric: '📐 Steric Modifications', electronic: '⚡ Electronic Modifications', bioisosteric: '🔄 Bioisosteric Suggestions'};
+    
+    for (const [strat, variants] of Object.entries(groups)) {
+      html += `<h4 class="font-semibold mt-4 mb-2">${strategyLabels[strat] || strat}</h4>
+        <div class="space-y-2">`;
+      variants.forEach(v => {
+        html += `<div class="bg-gray-50 rounded-lg p-3 text-sm">
+          <strong>${escapeHtml(v.modification)}</strong>
+          <p class="text-gray-600 text-xs mt-1">${escapeHtml(v.description)}</p>
+          ${v.rationale ? `<p class="text-gray-500 text-xs mt-1 italic">${escapeHtml(v.rationale)}</p>` : ''}
+          ${v.properties ? `<div class="flex flex-wrap gap-3 mt-2 text-xs">
+            <span>MW: <strong>${v.properties.MW}</strong></span>
+            <span>LogP: <strong>${v.properties.logP}</strong></span>
+            <span class="font-mono text-gray-400">${escapeHtml(v.properties.smiles)}</span>
+          </div>` : ''}
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById('results-content').innerHTML = html;
+}
+
+// Auto-select chemistry on load
+selectAgent('chemistry');
+</script>
+</body>
+</html>
