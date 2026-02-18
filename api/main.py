@@ -153,14 +153,30 @@ def chemistry_query(req: ChemistryRequest):
 @app.post("/api/pharmacology")
 def pharmacology_query(req: PharmacologyRequest):
     """Run Pharmacology agent: ADME/PK profiling."""
-    input_json = json.dumps({"name": req.compound, "context": "web_ui"})
+    smiles = None
 
+    # If input looks like SMILES, use directly
     if any(c in req.compound for c in "()=#[]@"):
-        input_json = json.dumps({"smiles": req.compound, "context": "web_ui"})
+        smiles = req.compound
+    else:
+        # Resolve name to SMILES via PubChem first
+        struct = run_script(CHEM_SCRIPTS / "query_pubchem.py", [
+            "--compound", req.compound, "--type", "structure", "--format", "smiles"
+        ])
+        if isinstance(struct, dict):
+            smiles = struct.get("result") or struct.get("smiles")
+            if not smiles and struct.get("raw"):
+                smiles = struct["raw"].strip()
 
+    if not smiles:
+        return {"status": "error", "error": f"Could not resolve '{req.compound}' to SMILES. Try entering a SMILES string directly."}
+
+    input_json = json.dumps({"smiles": smiles, "context": "web_ui"})
     result = run_script(PHARMA_SCRIPTS / "chain_entry.py", [
         "--input-json", input_json
     ])
+    result["resolved_smiles"] = smiles
+    result["query"] = req.compound
     return result
 
 
