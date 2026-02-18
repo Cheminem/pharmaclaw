@@ -1,0 +1,298 @@
+{
+  "schema_version": "1.0.0",
+  "name": "PharmaClaw",
+  "description": "AI-powered drug discovery pipeline. 7 chained agents for end-to-end molecule profiling: chemistry, ADME/pharmacology, toxicology, synthesis planning, IP/patent analysis, market intelligence, and PDF reporting.",
+  "homepage": "https://pharmaclaw.com",
+  "documentation": "https://pharmaclaw.com/.well-known/agent.json",
+  "contact": "cheminem602@gmail.com",
+  "discord": "https://discord.gg/KPQasNjRP",
+  "source": "https://github.com/Cheminem/pharmaclaw",
+
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "prefix": "Bearer",
+    "signup_url": "https://pharmaclaw.com/signup",
+    "programmatic_signup": false
+  },
+
+  "pricing": {
+    "currency": "USD",
+    "tiers": [
+      {
+        "name": "Free",
+        "price_monthly": 0,
+        "runs_per_month": 50,
+        "overage": null,
+        "agents": ["chemistry-query", "pharmacology"],
+        "chaining": false,
+        "api_access": false
+      },
+      {
+        "name": "Pro",
+        "price_monthly": 49,
+        "runs_per_month": 500,
+        "overage_per_run": 0.12,
+        "agents": "all",
+        "chaining": true,
+        "api_access": true
+      },
+      {
+        "name": "Team",
+        "price_monthly": 199,
+        "seats": 5,
+        "runs_per_month": 2500,
+        "overage_per_run": 0.10,
+        "agents": "all",
+        "chaining": true,
+        "api_access": true
+      },
+      {
+        "name": "Enterprise",
+        "price_monthly": null,
+        "contact": "cheminem602@gmail.com",
+        "runs_per_month": "unlimited",
+        "agents": "all",
+        "chaining": true,
+        "api_access": true,
+        "on_premise": true,
+        "sso": true
+      }
+    ],
+    "founding_offer": {
+      "description": "First 100 Pro users lock in $29/mo forever",
+      "slots_remaining": 100
+    }
+  },
+
+  "capabilities": [
+    {
+      "id": "chemistry-query",
+      "name": "Chemistry Query",
+      "description": "PubChem compound lookup, RDKit molecular properties, 2D visualization, BRICS retrosynthesis, synthesis route planning, Morgan fingerprints, similarity search.",
+      "input": {
+        "type": "object",
+        "required": ["smiles"],
+        "properties": {
+          "smiles": { "type": "string", "description": "SMILES molecular notation" },
+          "compound_name": { "type": "string", "description": "Common or IUPAC name (alternative to SMILES)" },
+          "actions": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["info", "props", "draw", "retrosynthesis", "similarity", "synthesis_route"] }
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "molecular_weight": { "type": "number" },
+          "logP": { "type": "number" },
+          "tpsa": { "type": "number" },
+          "hbd": { "type": "integer" },
+          "hba": { "type": "integer" },
+          "rotatable_bonds": { "type": "integer" },
+          "aromatic_rings": { "type": "integer" },
+          "smiles": { "type": "string" },
+          "pubchem_cid": { "type": "integer" },
+          "image_url": { "type": "string", "format": "uri" },
+          "retrosynthesis": { "type": "array" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "free",
+      "avg_latency_ms": 2000,
+      "data_sources": ["PubChem REST API", "ChEMBL API", "RDKit"]
+    },
+    {
+      "id": "pharmacology",
+      "name": "Pharmacology (ADME/PK)",
+      "description": "Drug-likeness assessment (Lipinski Ro5, Veber rules), QED, SA Score, ADME predictions (BBB, solubility, GI absorption, CYP3A4, P-gp, plasma protein binding), PAINS alerts.",
+      "input": {
+        "type": "object",
+        "required": ["smiles"],
+        "properties": {
+          "smiles": { "type": "string", "description": "SMILES molecular notation" }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "lipinski": { "type": "object" },
+          "veber": { "type": "object" },
+          "qed": { "type": "number" },
+          "sa_score": { "type": "number" },
+          "bbb_permeant": { "type": "boolean" },
+          "gi_absorption": { "type": "string" },
+          "solubility": { "type": "string" },
+          "cyp3a4_inhibitor": { "type": "boolean" },
+          "pgp_substrate": { "type": "boolean" },
+          "pains_alerts": { "type": "array" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "free",
+      "avg_latency_ms": 1500,
+      "data_sources": ["RDKit"]
+    },
+    {
+      "id": "toxicology",
+      "name": "Toxicology",
+      "description": "Safety profiling with structural alerts, hERG risk, hepatotoxicity flags, mutagenicity assessment.",
+      "input": {
+        "type": "object",
+        "required": ["smiles"],
+        "properties": {
+          "smiles": { "type": "string" }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "structural_alerts": { "type": "array" },
+          "herg_risk": { "type": "string" },
+          "hepatotoxicity": { "type": "string" },
+          "mutagenicity": { "type": "string" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "pro",
+      "avg_latency_ms": 2000,
+      "data_sources": ["RDKit", "structural alert databases"]
+    },
+    {
+      "id": "ip-expansion",
+      "name": "IP & Patent Analysis",
+      "description": "FTO analysis, patent similarity search, bioisostere suggestions, derivative recommendations, patent landscape overview.",
+      "input": {
+        "type": "object",
+        "required": ["smiles"],
+        "properties": {
+          "smiles": { "type": "string" },
+          "target_indication": { "type": "string" }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "similar_patents": { "type": "array" },
+          "fto_risk": { "type": "string" },
+          "bioisosteres": { "type": "array" },
+          "novel_derivatives": { "type": "array" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "pro",
+      "avg_latency_ms": 5000,
+      "data_sources": ["Google Patents", "Lens.org", "RDKit"]
+    },
+    {
+      "id": "market-intel",
+      "name": "Market Intelligence",
+      "description": "FDA FAERS adverse event monitoring, yearly trends, top reactions/outcomes analysis with visualization.",
+      "input": {
+        "type": "object",
+        "required": ["drug_name"],
+        "properties": {
+          "drug_name": { "type": "string" },
+          "smiles": { "type": "string", "description": "Alternative input — resolves via PubChem" }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "adverse_events": { "type": "array" },
+          "yearly_trends": { "type": "object" },
+          "top_reactions": { "type": "array" },
+          "top_outcomes": { "type": "array" },
+          "chart_urls": { "type": "array" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "pro",
+      "avg_latency_ms": 4000,
+      "data_sources": ["openFDA FAERS API"]
+    },
+    {
+      "id": "synthesis-planning",
+      "name": "Synthesis Planning",
+      "description": "Retrosynthetic analysis, BRICS decomposition, forward reaction simulation, feasibility scoring with 21 named reaction templates.",
+      "input": {
+        "type": "object",
+        "required": ["smiles"],
+        "properties": {
+          "smiles": { "type": "string" },
+          "depth": { "type": "integer", "default": 3, "description": "Retrosynthesis recursion depth" }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "routes": { "type": "array" },
+          "feasibility_scores": { "type": "array" },
+          "named_reactions_used": { "type": "array" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "pro",
+      "avg_latency_ms": 3000,
+      "data_sources": ["RDKit", "reaction template database"]
+    },
+    {
+      "id": "full-pipeline",
+      "name": "Full Pipeline Report",
+      "description": "End-to-end: Chemistry → Pharmacology → Toxicology → Synthesis → IP → Market Intel → PDF Report. All 7 agents chained.",
+      "input": {
+        "type": "object",
+        "required": ["smiles"],
+        "properties": {
+          "smiles": { "type": "string" },
+          "compound_name": { "type": "string" },
+          "target_indication": { "type": "string" },
+          "output_format": { "type": "string", "enum": ["json", "pdf", "both"], "default": "both" }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "chemistry": { "type": "object" },
+          "pharmacology": { "type": "object" },
+          "toxicology": { "type": "object" },
+          "synthesis": { "type": "object" },
+          "ip_analysis": { "type": "object" },
+          "market_intel": { "type": "object" },
+          "pdf_url": { "type": "string", "format": "uri" },
+          "overall_confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "tier": "pro",
+      "avg_latency_ms": 15000,
+      "data_sources": ["PubChem", "ChEMBL", "RDKit", "openFDA", "Google Patents"]
+    }
+  ],
+
+  "chaining": {
+    "supported": true,
+    "description": "Agents chain automatically: output of one feeds into the next. Full pipeline runs all 7 in sequence.",
+    "tier": "pro"
+  },
+
+  "batch": {
+    "supported": true,
+    "max_compounds": 500,
+    "input_formats": ["csv", "json"],
+    "output_formats": ["csv", "json", "pdf"],
+    "tier": "pro"
+  },
+
+  "reliability": {
+    "computational_accuracy": "Deterministic for RDKit-based calculations (molecular properties, fingerprints). Prediction-based outputs include confidence scores.",
+    "data_freshness": "PubChem/ChEMBL: real-time API queries. FAERS: updated quarterly by FDA.",
+    "uptime_target": "99.5%",
+    "status_url": "https://pharmaclaw.com/status"
+  },
+
+  "value_proposition": {
+    "vs_self_computation": "A single full-pipeline run replaces ~15,000 tokens of LLM reasoning + multiple API integrations. PharmaClaw returns verified results in <15s at $0.10-0.12/run vs estimated $0.50+ in LLM compute for equivalent analysis.",
+    "vs_enterprise": "Schrödinger/Dotmatics cost $100K-$500K/yr. PharmaClaw Pro is $49/mo with comparable core profiling capabilities."
+  }
+}
