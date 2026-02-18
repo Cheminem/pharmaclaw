@@ -6,13 +6,14 @@ Endpoints:
   POST /api/pharmacology — ADME/PK profiling
   POST /api/catalyst     — Catalyst recommendation + ligand design
   GET  /api/health       — Health check
+
+Deploy on Render: scripts are bundled in api/skills/
 """
 
 import json
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,19 +30,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Resolve script paths relative to workspace
-WORKSPACE = Path(os.environ.get("PHARMACLAW_WORKSPACE", Path(__file__).parent.parent.parent))
-SKILLS = WORKSPACE / "skills"
-CHEM_SCRIPTS = SKILLS / "pharmaclaw-chemistry-query" / "scripts"
-PHARMA_SCRIPTS = SKILLS / "pharmaclaw-pharmacology-agent" / "scripts"
-CATALYST_SCRIPTS = SKILLS / "pharmaclaw-catalyst-design" / "scripts"
+# Script paths — bundled in api/skills/ for deployment
+API_DIR = Path(__file__).parent
+CHEM_SCRIPTS = API_DIR / "skills" / "chemistry"
+PHARMA_SCRIPTS = API_DIR / "skills" / "pharmacology"
+CATALYST_SCRIPTS = API_DIR / "skills" / "catalyst"
 
 
 def run_script(script_path: Path, args: list[str], timeout: int = 30) -> dict:
     """Run a Python script and return parsed JSON output."""
     if not script_path.exists():
         raise HTTPException(status_code=500, detail=f"Script not found: {script_path.name}")
-    
+
     cmd = [sys.executable, str(script_path)] + args
     try:
         result = subprocess.run(
@@ -51,8 +51,7 @@ def run_script(script_path: Path, args: list[str], timeout: int = 30) -> dict:
         if result.returncode != 0:
             error_msg = result.stderr.strip() or result.stdout.strip() or "Unknown error"
             return {"status": "error", "error": error_msg}
-        
-        # Parse JSON output
+
         output = result.stdout.strip()
         if not output:
             return {"status": "error", "error": "No output from script"}
@@ -60,7 +59,6 @@ def run_script(script_path: Path, args: list[str], timeout: int = 30) -> dict:
     except subprocess.TimeoutExpired:
         return {"status": "error", "error": "Request timed out (30s)"}
     except json.JSONDecodeError:
-        # Return raw output if not JSON
         return {"status": "success", "raw": result.stdout.strip()}
     except Exception as e:
         return {"status": "error", "error": str(e)}
@@ -77,7 +75,7 @@ class PharmacologyRequest(BaseModel):
     compound: str = Field(..., description="Drug name or SMILES string")
 
 class CatalystRequest(BaseModel):
-    reaction: Optional[str] = Field(None, description="Reaction type (e.g., suzuki, C-N coupling, metathesis)")
+    reaction: Optional[str] = Field(None, description="Reaction type (e.g., suzuki, C-N coupling)")
     scaffold: Optional[str] = Field(None, description="Ligand SMILES or name (PPh3, NHC_IMes, etc.)")
     strategy: str = Field(default="all", description="Ligand modification strategy")
     enantioselective: bool = Field(default=False)
@@ -100,6 +98,7 @@ def chemistry_query(req: ChemistryRequest):
     info = run_script(CHEM_SCRIPTS / "query_pubchem.py", [
         "--compound", req.compound, "--type", "info"
     ])
+
     # Flatten nested PubChem response for frontend
     if isinstance(info, dict) and "PropertyTable" in info:
         props_list = info["PropertyTable"].get("Properties", [])
@@ -107,17 +106,16 @@ def chemistry_query(req: ChemistryRequest):
     else:
         results["pubchem"] = info
 
-    # 2. Get SMILES (from PubChem or direct input)
+    # 2. Get SMILES
     smiles = None
     if isinstance(info, dict) and info.get("status") != "error":
-        # Handle nested PubChem response
         smiles = info.get("CanonicalSMILES") or info.get("smiles")
         if not smiles and "PropertyTable" in info:
             props_list = info["PropertyTable"].get("Properties", [])
             if props_list:
                 smiles = props_list[0].get("CanonicalSMILES")
-    
-    # If no SMILES yet, fetch structure explicitly
+
+    # Fetch structure explicitly if needed
     if not smiles and isinstance(info, dict) and info.get("status") != "error":
         struct = run_script(CHEM_SCRIPTS / "query_pubchem.py", [
             "--compound", req.compound, "--type", "structure", "--format", "smiles"
@@ -126,7 +124,7 @@ def chemistry_query(req: ChemistryRequest):
             smiles = struct.get("result") or struct.get("smiles") or struct.get("CanonicalSMILES")
             if not smiles and struct.get("raw"):
                 smiles = struct["raw"].strip()
-    
+
     # If input looks like SMILES, use directly
     if not smiles and any(c in req.compound for c in "()=#[]@"):
         smiles = req.compound
@@ -155,13 +153,11 @@ def chemistry_query(req: ChemistryRequest):
 @app.post("/api/pharmacology")
 def pharmacology_query(req: PharmacologyRequest):
     """Run Pharmacology agent: ADME/PK profiling."""
-    # Try chain_entry for full profile
     input_json = json.dumps({"name": req.compound, "context": "web_ui"})
-    
-    # Check if input is SMILES
+
     if any(c in req.compound for c in "()=#[]@"):
         input_json = json.dumps({"smiles": req.compound, "context": "web_ui"})
-    
+
     result = run_script(PHARMA_SCRIPTS / "chain_entry.py", [
         "--input-json", input_json
     ])
@@ -173,7 +169,7 @@ def catalyst_query(req: CatalystRequest):
     """Run Catalyst Design agent: recommendation + ligand design."""
     if not req.reaction and not req.scaffold:
         raise HTTPException(status_code=400, detail="Provide either 'reaction' or 'scaffold' (or both)")
-    
+
     input_data = {"context": "web_ui"}
     if req.reaction:
         input_data["reaction"] = req.reaction
@@ -192,4 +188,5 @@ def catalyst_query(req: CatalystRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
