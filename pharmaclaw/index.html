@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PharmaClaw 🧪 - AI-Powered Drug Discovery Pipeline | ClawHub</title>
-<meta name="description" content="PharmaClaw: 7 AI agents for end-to-end drug discovery — chemistry, ADME, synthesis planning, toxicology, IP, market intel, and reporting. Built on OpenClaw.">
+<meta name="description" content="PharmaClaw: The accessible entry point to AI-powered drug discovery &amp; catalyst design. 7 chained agents — chemistry, ADME, catalyst design, synthesis, toxicology, IP, market intel. Built on OpenClaw.">
 <meta property="og:title" content="PharmaClaw 🧪 AI Drug Discovery Pipeline">
 <meta property="og:description" content="Generate, analyze, synthesize, monitor — 7 chained AI agents for drug discovery.">
 <meta property="og:image" content="https://pharmaclaw.com/og.png">
@@ -33,10 +33,11 @@
 <section class="min-h-screen flex items-center justify-center text-center px-4 pt-20 pb-32">
 <div class="max-w-4xl mx-auto">
 <h1 class="text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-gray-900 via-claw-purple to-indigo-900 bg-clip-text text-transparent mb-8 drop-shadow-2xl">PharmaClaw</h1>
-<p class="text-2xl md:text-4xl font-bold text-gray-800 mb-4">AI-Powered Drug Discovery Pipeline</p>
-<p class="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-  <strong>Generate</strong> molecular insights · <strong>Analyze</strong> ADME & toxicology · <strong>Synthesize</strong> retrosynthesis routes · <strong>Monitor</strong> safety signals — 7 chained AI agents on OpenClaw.
+<p class="text-2xl md:text-4xl font-bold text-gray-800 mb-4">AI-Powered Drug Discovery & Catalyst Design</p>
+<p class="text-lg md:text-xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
+  <strong>Generate</strong> molecular insights · <strong>Design</strong> novel catalysts & ligands · <strong>Analyze</strong> ADME & toxicology · <strong>Synthesize</strong> retrosynthesis routes · <strong>Monitor</strong> safety signals — 7 chained AI agents on OpenClaw.
 </p>
+<p class="text-md text-claw-purple font-semibold mb-12 max-w-2xl mx-auto">The accessible entry point to computational chemistry — no $100K software license, no PhD required.</p>
 <div class="flex flex-col sm:flex-row gap-6 justify-center">
 <a href="#demo" class="bg-gradient-to-r from-claw-purple to-indigo-600 text-white px-12 py-6 rounded-3xl text-xl font-bold shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all">🔬 Live Demo</a>
 <a href="https://clawhub.com/pharmaclaw" class="border-3 border-claw-purple text-claw-purple px-12 py-6 rounded-3xl text-xl font-bold hover:bg-claw-purple hover:text-white shadow-xl transition-all">Freemium Install</a>
@@ -49,14 +50,23 @@
 <div class="max-w-5xl mx-auto text-center mb-20">
 <h2 class="text-5xl font-black bg-gradient-to-r from-claw-purple to-indigo-600 bg-clip-text text-transparent mb-6">Why PharmaClaw?</h2>
 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-  End-to-end drug discovery in one pipeline. From SMILES input to polished report — Chemistry, ADME, Synthesis Planning, Toxicology, IP Analysis, Market Intelligence, and PDF Export. No black box: OpenClaw transparency, real-time data from PubChem, openFDA, and RDKit.
+  End-to-end drug discovery in one pipeline. From SMILES input to polished report — Chemistry, Catalyst Design, ADME, Synthesis Planning, Toxicology, IP Analysis, Market Intelligence, and PDF Export. No black box: OpenClaw transparency, real-time data from PubChem, openFDA, and RDKit.
+</p>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto mt-4">
+  Tools like Schrödinger and ChemAxon cost $30K–$500K/year and require specialized training. PharmaClaw gives researchers the same core workflows — <strong>for free or $49/mo</strong> — powered by AI agents anyone can run.
 </p>
 </div>
-<div class="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
 <div class="text-center p-8 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50 shadow-xl">
 <div class="text-5xl mb-6">🧪</div>
 <h3 class="text-2xl font-bold mb-4">Chemistry + Synthesis</h3>
 <p>PubChem queries, RDKit properties, retrosynthesis routes with feasibility scoring. SMILES in, actionable chemistry out.</p>
+</div>
+<div class="text-center p-8 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 shadow-xl border-2 border-amber-200">
+<div class="text-5xl mb-6">🔧</div>
+<h3 class="text-2xl font-bold mb-4">Catalyst Design</h3>
+<p>Organometallic catalyst recommendation + novel ligand design. Pd, Ru, Rh, Ir, Ni, Cu across 28 reaction types. Steric, electronic, and bioisosteric ligand optimization via RDKit.</p>
+<span class="inline-block mt-3 text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full">NEW</span>
 </div>
 <div class="text-center p-8 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50 shadow-xl">
 <div class="text-5xl mb-6">💊</div>
@@ -102,6 +112,12 @@
     <p class="mt-3 text-sm font-bold text-teal-700">Synthesis</p>
   </div>
   <div class="text-2xl text-gray-400 mx-1">→</div>
+  <div class="flex flex-col items-center min-w-[100px] relative">
+    <div class="absolute -top-2 -right-2 bg-amber-400 text-[10px] font-black text-white px-1.5 py-0.5 rounded-full">NEW</div>
+    <div class="w-16 h-16 rounded-2xl bg-orange-500 text-white flex items-center justify-center text-2xl shadow-lg">🔧</div>
+    <p class="mt-3 text-sm font-bold text-orange-700">Catalyst</p>
+  </div>
+  <div class="text-2xl text-gray-400 mx-1">→</div>
   <div class="flex flex-col items-center min-w-[100px]">
     <div class="w-16 h-16 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl shadow-lg">💼</div>
     <p class="mt-3 text-sm font-bold text-amber-700">IP Check</p>
@@ -142,6 +158,11 @@
   <div class="flex items-center gap-4 w-full max-w-xs">
     <div class="w-14 h-14 rounded-2xl bg-teal-500 text-white flex items-center justify-center text-xl shadow-lg shrink-0">🔬</div>
     <p class="font-bold text-teal-700">Synthesis</p>
+  </div>
+  <div class="text-2xl text-gray-400">↓</div>
+  <div class="flex items-center gap-4 w-full max-w-xs">
+    <div class="w-14 h-14 rounded-2xl bg-orange-500 text-white flex items-center justify-center text-xl shadow-lg shrink-0">🔧</div>
+    <p class="font-bold text-orange-700">Catalyst Design <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full ml-1">NEW</span></p>
   </div>
   <div class="text-2xl text-gray-400">↓</div>
   <div class="flex items-center gap-4 w-full max-w-xs">
@@ -298,6 +319,8 @@
       <div class="flex items-center gap-2 bg-red-500/20 border border-red-400/40 rounded-xl px-4 py-3"><span class="text-xl">☠️</span><span class="font-semibold text-sm">Toxicology</span><span class="text-green-400">✅</span></div>
       <div class="text-slate-500 hidden md:flex items-center">→</div>
       <div class="flex items-center gap-2 bg-teal-500/20 border border-teal-400/40 rounded-xl px-4 py-3"><span class="text-xl">🔬</span><span class="font-semibold text-sm">Synthesis</span><span class="text-green-400">✅</span></div>
+      <div class="text-slate-500 hidden md:flex items-center">→</div>
+      <div class="flex items-center gap-2 bg-orange-500/20 border border-orange-400/40 rounded-xl px-4 py-3"><span class="text-xl">🔧</span><span class="font-semibold text-sm">Catalyst</span><span class="text-green-400">✅</span></div>
       <div class="text-slate-500 hidden md:flex items-center">→</div>
       <div class="flex items-center gap-2 bg-indigo-500/20 border border-indigo-400/40 rounded-xl px-4 py-3"><span class="text-xl">📊</span><span class="font-semibold text-sm">Market Intel</span><span class="text-green-400">✅</span></div>
       <div class="text-slate-500 hidden md:flex items-center">→</div>
